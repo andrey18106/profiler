@@ -23,6 +23,22 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			<div v-for="(param, key) in http.request.params" :key="key">
 				{{ key }}: <i>{{ param }}</i>
 			</div>
+			<div v-if="app_ecosystem_v2">
+				<div v-if="app_ecosystem_v2?.headers" class="headers">
+					<p><b>App Ecosystem V2 headers:</b></p>
+					<div v-for="(headerValue, key) in app_ecosystem_v2?.headers" :key="key">
+						<template v-if="key === 'AE-SIGN-TIME'">
+							{{ key }}: <i>{{ headerValue }}</i> ({{ new Date(headerValue * 1000).toUTCString() }})
+						</template>
+						<template v-else-if="key === 'AE-REQUEST-ID'">
+							{{ key }}: <a :href="getParentProfileUrl(headerValue)" target="_blank" style="text-decoration: underline;"><i>{{ headerValue }}</i></a>
+						</template>
+						<template v-else>
+							{{ key }}: <i>{{ headerValue }}</i>
+						</template>
+					</div>
+				</div>
+			</div>
 			<h2>Response</h2>
 			<p><b>Headers:</b></p>
 			<p><b>Status code:</b> {{ http.response.statusCode }}</p>
@@ -39,6 +55,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script>
 import { mapState } from 'vuex'
+import {generateUrl} from "@nextcloud/router";
 
 export default {
 	name: 'RequestView',
@@ -52,7 +69,15 @@ export default {
 		memory() {
 			return this.profiles[this.$route.params.token]?.collectors?.memory
 		},
+		app_ecosystem_v2() {
+			return this.profiles[this.$route.params.token]?.collectors?.app_ecosystem_v2
+		},
 		...mapState(['profiles']),
+	},
+	methods: {
+		getParentProfileUrl(token) {
+			return generateUrl('/apps/profiler/profiler/{profiler}/{token}', { profiler: 'http', token })
+		},
 	},
 }
 </script>

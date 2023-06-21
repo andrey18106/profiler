@@ -44,7 +44,7 @@ class MainController extends Controller {
 
 		return new RedirectResponse($this->urlGenerator->linkToRoute('profiler.main.profiler', [
 			'profiler' => 'db',
-			'token' => $profiles['token'] ?? 'empty'
+			'token' => $profiles[0]['token'] ?? 'empty'
 		]));
 	}
 
